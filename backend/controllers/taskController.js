@@ -1,5 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const Task = require('../models/Task');
+const User = require('../models/User');
 
 exports.createTask = async (req, res) => {
     try {
@@ -12,14 +13,27 @@ exports.createTask = async (req, res) => {
 };
 
 exports.getUserTasks = async (req, res) => {
+    console.log("Fetching tasks for the user........");
     try {
-        const userId = req.query.userId;
+        const userId = req.params.id;
         if (!userId) {
             return res.status(400).json({ message: 'User ID is required' });
         }
         
-        const userObjectId = new mongoose.Types.ObjectId(userId);
-        const tasks = await Task.find({ assignedTo: userObjectId });
+        let tasks;
+        if(req.user.role === "admin") {
+            tasks = await Task.find({});
+        }
+
+        if(req.user.role === "user") {
+            tasks = await Task.find({ assignedTo: userId});
+        }
+
+        if(req.user.role === "manager") {
+            let usersUnderManager = await User.find({ manager: userId }, { _id: 1});
+            const users = usersUnderManager.map(u => u._id);
+            tasks = await Task.find({ assignedTo: { $in : [userId, ...users]}})
+        }
         res.status(200).json(tasks);
     } catch(err) {
         res.status(400).send(err.message);

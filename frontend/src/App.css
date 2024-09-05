@@ -1,0 +1,201 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    display: flex;
+    height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.login-container, .register-container {
+    position: absolute;
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+}
+
+form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    min-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="password"],
+button[type="submit"],
+select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #f9f9f9;
+    transition: border 0.3s ease;
+    box-sizing: border-box;
+}
+
+button[type="submit"] {
+    background-color: #4a90e2;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #357ABD;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+input::placeholder {
+    color: #888;
+    font-weight: bold;
+}
+
+form:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 600px) {
+    form {
+        padding: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    button[type="submit"] {
+        font-size: 0.9rem;
+    }
+
+    button[type="submit"] {
+        font-size: 1rem;
+    }
+}
+
+.login-link,
+.register-link {
+    margin-top: 12px;
+    text-align: right;
+    margin-right: 4px;
+}
+
+a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.error-message {
+    font-weight: 500;
+    color: rgb(160, 39, 39);
+    text-align: right;
+}
+
+.tasks-list {
+    width: 100%;
+
+}
+
+.tasks-list .modal-actions {
+    display: flex;
+    justify-content: end;
+    gap: 12px;
+}
+
+.tasks-list .modal-actions button, .header button {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.submit {
+    background-color: #215ea5;
+}
+
+.submit:hover {
+    background-color: #164a8a;
+}
+
+.cancel {
+    background-color: rgb(199, 28, 28);
+
+}
+
+.cancel:hover {
+    background-color: rgb(150, 0, 0);
+}
+
+.tasks-list{
+    .header {
+        padding: 12px;
+        width: 100vw;
+        height: 74px;
+        background-color: #164a8a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        color: white;
+    }
+}
+
+.header .main{
+    font-size: 24px;
+    font-weight: bold;
+}
+.header .action {
+    display: flex;
+    gap: 12px;
+    margin-right: 24px;
+}
+
+.blur-background {
+    filter: blur(5px);
+    pointer-events: none; 
+}
+
+
+
+.task-popup {
+    position: absolute;
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    z-index: 1;  
+}
+
+.tasks-list-container {
+    padding: 24px;
+    display: flex;
+    gap: 12px 24px ;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+    .tasks-list-container {
+        justify-content: center;
+    }
+}

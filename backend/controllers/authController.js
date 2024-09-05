@@ -3,18 +3,21 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 exports.register = async (req, res) => {
+    console.log(`registering  user, please wait.............`);
     const { username, password, role, manager } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ username, password: hashedPassword, role, manager });
         await user.save();
-        res.status(201).send('User created');
+        const token = jwt.sign({ userId: user._id, role: user.role }, 'your_jwt_secret');
+        res.status(201).json({token});
     } catch (err) {
         res.status(400).send(err.message);
     }
 };
 
 exports.login = async (req, res) => {
+    console.log(`user logging in, please wait.............`);
     const { username, password } = req.body;
     try {
         const user = await User.findOne({ username });
