@@ -11,7 +11,9 @@ exports.register = async (req, res) => {
         await user.save();
         const token = jwt.sign({ userId: user._id, role: user.role }, 'your_jwt_secret');
         res.status(201).json({token});
+        console.log(`user registered successfully!`)
     } catch (err) {
+        console.error(`user registration unsuccessful`, err.msg)
         res.status(400).send(err.message);
     }
 };
@@ -25,8 +27,10 @@ exports.login = async (req, res) => {
             return res.status(401).send('Invalid credentials');
         }
         const token = jwt.sign({ userId: user._id, role: user.role }, 'your_jwt_secret');
-        res.json({ token });
+        res.status(200).json({ token });
+        console.log(`user logged in successully!`)
     } catch (err) {
+        console.log(`user logging failed`, err.message)
         res.status(500).send(err.message);
     }
 };
