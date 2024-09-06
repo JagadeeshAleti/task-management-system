@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - 7000:7000
+    networks:
+      - tms-network
+    environment:
+      DATABASE_URI: "mongodb://mongodb:27017/taskmanager"
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./frontend
+    ports:
+      - 5173:5173
+    networks:
+      - tms-network
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - 27019:27017
+    networks:
+      - tms-network
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  tms-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
