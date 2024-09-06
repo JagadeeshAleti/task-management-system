@@ -199,3 +199,61 @@ a {
         justify-content: center;
     }
 }
+
+.managers-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .managers-list {
+        justify-content: center;
+    }
+}
+
+.manager-card {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    background-color: #9dbfec;
+    width: 370px;
+}
+
+.manager-card button, .task-popup button{
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 12px;
+    float: right;
+}
+
+.user-card {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-card img {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+
+}
+
+.users-list {
+    margin-top: 10px;
+}
+
+.no-users{
+    margin-top: 12px;
+    font-size: 16px;
+}

@@ -24,6 +24,11 @@ const userReducer = (state = initialState, action) => {
                 ...state,
                 loading: true,
             };
+        case "UPDATE_USER_SUCCESS": 
+            return {
+                ...state,
+                loading: false,
+            }
         default:
             return state;
     }

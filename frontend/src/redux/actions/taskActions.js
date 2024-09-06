@@ -46,7 +46,6 @@ export const getUserTasks = (userId) => async (dispatch) => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         });
-        console.log("results from backedn: ", data)
         dispatch({ type: "GET_USER_TASKS", payload: data });
     } catch(err) {
         dispatch({ type: "UNABLE_TO_GET_USER_TASKS" })

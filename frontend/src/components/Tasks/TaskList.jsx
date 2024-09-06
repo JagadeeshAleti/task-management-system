@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createTask, deleteTask, updateTask } from "../../redux/actions/taskActions";
 import TaskItem from "./TaskItem/TaskItem";
 import * as jwt from "jwt-decode"
-import { getUsers } from "../../redux/actions/userActions";
+import { getUsers, updateUser } from "../../redux/actions/userActions";
 import { getUserTasks } from "../../redux/actions/taskActions"
 
 const getCurrentDate = () => {
@@ -23,8 +23,15 @@ const DEAFULT_TASK = {
 const TaskList = () => {
     const [showModal, setShowModal] = useState(false);
     const [newTask, setNewTask] = useState(DEAFULT_TASK);
+
     const [editTask, setEditTask] = useState(false);
+    const [addUser, setAddUser] = useState(false);
+
+    const [manageUsers, setManageUsers] = useState(false);
     
+    const [selectedManager, setSelectedManager] = useState('');
+    const [selectedUser, setSelectedUser] = useState("");
+
     const dispatch = useDispatch();
 
     const tasks = useSelector((state) => state?.tasks?.tasks);
@@ -44,7 +51,7 @@ const TaskList = () => {
         assignees = users.filter(u => u.role == "user" || u.role == "manager")
     } 
     if(role === "manager") {
-        assignees = users.filter(u => u.role === "user")
+        assignees = users.filter(u => u.manager === userId)
     }
     
     const handleInputChange = (e) => {
@@ -57,7 +64,8 @@ const TaskList = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        editTask ? dispatch(updateTask(newTask?.taskId, newTask)) :dispatch(createTask(newTask));
+        let assignedTo = newTask.assignedTo ? newTask.assignedTo : assignees[0]; 
+        editTask ? dispatch(updateTask(newTask?.taskId, newTask)) :dispatch(createTask({ ...newTask, assignedTo }));
         setShowModal(false);
         setNewTask(DEAFULT_TASK);
         dispatch(getUserTasks(userId));
@@ -85,6 +93,14 @@ const TaskList = () => {
         dispatch(getUserTasks(userId));
     }
 
+    const onCompleteTask = (id) => {
+        const confirmed = window.confirm("Are you sure want to mark this task as complete?");
+        if(confirmed) {
+            dispatch(updateTask(id, { completed: true }));
+        }
+        dispatch(getUserTasks(userId));
+    }
+
     const onCancelTask = () => {
         setShowModal(false);
         if(editTask) {
@@ -92,16 +108,87 @@ const TaskList = () => {
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem('token');
+        window.location.reload();
+    }
+
+    const managers = users
+    .filter(m => m.role === 'manager')
+    .map(m => {
+        const usersUnderManager = users.filter(u => u.manager === m._id);
+        return {
+            ...m,
+            users: usersUnderManager
+        };
+    });
+
+    const UserCard = ({ user }) => (
+        <div className="user-card">
+            <h4>{user.username}</h4>
+            <img                     
+                src="https://cdn-icons-png.flaticon.com/512/6048/6048190.png"
+                onClick={() => {
+                    dispatch(updateUser(user._id, { manager: null }));
+                    dispatch(getUsers())
+                }}
+            />
+        </div>
+    );    
+
+    const ManagerCard = ({ manager }) => (
+        <div className="manager-card">
+            <h2>{manager.username}</h2>
+            {
+                !manager.users.length &&
+                <div className="no-users">No Users, Click on Add Users to add</div>
+            }
+            <div className="users-list">
+                {manager.users.map(user => (
+                    <UserCard key={user._id} user={user} />
+                ))}
+            </div>
+            <button className="submit" onClick={() => {
+                setAddUser(true);
+                setSelectedManager(manager._id)
+            }}>Add Users</button>
+        </div>
+    );
+    
+    const addUserToManager = (e) => {
+        e.preventDefault();
+        const body = { 
+            manager: selectedManager
+        }
+
+        let userSelected = !selectedUser ? usersWithoutManagers[0]?._id : selectedUser;
+        dispatch(updateUser(userSelected, body));
+        setAddUser(false);
+        setSelectedManager("");
+        dispatch(getUsers());
+    }
+
+    const usersWithoutManagers = users.filter(u => u.manager == null && !(["admin", "manager"].includes(u.role)));
+
+    let toogle = false;
+    if(role === 'admin') {
+        toogle = !manageUsers
+    }
+    
     return (
         <div className="tasks-list">
             <div className="header">
                 <div className="main">{`Hello, ${userDetails?.username}`}</div>
                 <div className="action">
-                    <button className="cancel" onClick={() => {
-                        localStorage.removeItem('token');
-                        window.location.reload();
-                    }}>Logout</button>
-                    <button className="submit" onClick={() => {setShowModal(true)}}>Create Task</button>
+                    {!(role === 'user') &&
+                        <button className="submit" onClick={() => setShowModal(true)}>Create Task</button>
+                    }
+
+                    {(role === 'admin' && !manageUsers)?
+                        <button className="submit" onClick={() => setManageUsers(true)}>Manage Users</button>:
+                        (role === 'admin') && <button className="submit" onClick={() => setManageUsers(false)}>Tasks</button>
+                    }
+                    <button className="cancel" onClick={logout}>Logout</button>
                 </div>
             </div>
             {showModal && (
@@ -176,6 +263,27 @@ const TaskList = () => {
                     </div>
                 </div>
             )}
+
+            {
+                addUser &&
+                <form className="task-popup">
+                    <h3>Please select user</h3>
+                    <select onChange={e => setSelectedUser(e.target.value)}>
+                        {
+                            usersWithoutManagers.map(a => <option value={a._id} key={a._id}>{a.username}</option>)
+                        }
+                    </select>
+                    <div className="modal-actions">
+                        <button className="submit" onClick={e => addUserToManager(e)}>Add</button>
+                        <button className="cancel" onClick={() => { setAddUser(false); setSelectedManager("")}}>Cancel</button>
+                    </div>
+                </form>
+            }
+            {manageUsers && role == "admin" ?
+                <div className={`managers-list ${addUser ? 'blur-background' : ''}`}>
+                    {managers.map(m => <ManagerCard key={Math.random()} manager={m} />)}
+                </div>
+            :
             <div className={`tasks-list-container ${showModal ? 'blur-background' : ''}   `}>
                 {tasks.map((task) => (
                     <TaskItem 
@@ -183,10 +291,11 @@ const TaskList = () => {
                         task={task} 
                         onEditTask={onEditTask}
                         onDeleteTask={onDeleteTask}
+                        onCompleteTask={onCompleteTask}
                         username={getUsername(task.assignedTo)}
                     />
                 ))}
-            </div>
+            </div>}
         </div>
     );
 };

@@ -2,7 +2,7 @@
 import React from "react";
 import "./styles.css";
 
-const TaskItem = ({ task, username, onEditTask, onDeleteTask}) => {
+const TaskItem = ({ task, username, onEditTask, onDeleteTask, onCompleteTask}) => {
     return (
         <div className={`task-item ${task.completed ? "completed" : ""}`}>
             <div className="task-header">
@@ -19,6 +19,9 @@ const TaskItem = ({ task, username, onEditTask, onDeleteTask}) => {
                 </span>
             </div>
             <div className="edit-actions">
+                <img src="https://cdn-icons-png.flaticon.com/512/16208/16208195.png"
+                    onClick={() => onCompleteTask(task._id)} 
+                />
                 <img                    
                     src="https://cdn-icons-png.flaticon.com/512/5253/5253658.png"
                     onClick={() => onEditTask(task._id)}
@@ -27,6 +30,7 @@ const TaskItem = ({ task, username, onEditTask, onDeleteTask}) => {
                     src="https://cdn-icons-png.flaticon.com/512/6048/6048190.png"
                     onClick={() => onDeleteTask(task._id)}
                 />
+
             </div>
         </div>
     );
