@@ -5,6 +5,7 @@ import TaskItem from "./TaskItem/TaskItem";
 import * as jwt from "jwt-decode"
 import { getUsers, updateUser } from "../../redux/actions/userActions";
 import { getUserTasks } from "../../redux/actions/taskActions"
+import ManagerCard from "../Manager/Managers";
 
 const getCurrentDate = () => {
     const date = new Date();
@@ -122,38 +123,11 @@ const TaskList = () => {
             users: usersUnderManager
         };
     });
-
-    const UserCard = ({ user }) => (
-        <div className="user-card">
-            <h4>{user.username}</h4>
-            <img                     
-                src="https://cdn-icons-png.flaticon.com/512/6048/6048190.png"
-                onClick={() => {
-                    dispatch(updateUser(user._id, { manager: null }));
-                    dispatch(getUsers())
-                }}
-            />
-        </div>
-    );    
-
-    const ManagerCard = ({ manager }) => (
-        <div className="manager-card">
-            <h2>{manager.username}</h2>
-            {
-                !manager.users.length &&
-                <div className="no-users">No Users, Click on Add Users to add</div>
-            }
-            <div className="users-list">
-                {manager.users.map(user => (
-                    <UserCard key={user._id} user={user} />
-                ))}
-            </div>
-            <button className="submit" onClick={() => {
-                setAddUser(true);
-                setSelectedManager(manager._id)
-            }}>Add Users</button>
-        </div>
-    );
+        
+    const onAddUserToManager = (managerId) => {
+        setAddUser(true);
+        setSelectedManager(managerId);
+    }
     
     const addUserToManager = (e) => {
         e.preventDefault();
@@ -281,7 +255,7 @@ const TaskList = () => {
             }
             {manageUsers && role == "admin" ?
                 <div className={`managers-list ${addUser ? 'blur-background' : ''}`}>
-                    {managers.map(m => <ManagerCard key={Math.random()} manager={m} />)}
+                    {managers.map(m => <ManagerCard key={Math.random()} manager={m} onAddUserToManager={onAddUserToManager} />)}
                 </div>
             :
             <div className={`tasks-list-container ${showModal ? 'blur-background' : ''}   `}>
