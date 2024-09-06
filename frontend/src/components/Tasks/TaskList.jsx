@@ -6,6 +6,7 @@ import * as jwt from "jwt-decode"
 import { getUsers, updateUser } from "../../redux/actions/userActions";
 import { getUserTasks } from "../../redux/actions/taskActions"
 import ManagerCard from "../Manager/Managers";
+import TaskForm from "./TaskForm";
 
 const getCurrentDate = () => {
     const date = new Date();
@@ -94,11 +95,15 @@ const TaskList = () => {
         dispatch(getUserTasks(userId));
     }
 
-    const onCompleteTask = (id) => {
-        const confirmed = window.confirm("Are you sure want to mark this task as complete?");
-        if(confirmed) {
-            dispatch(updateTask(id, { completed: true }));
+    const onCompleteTask = (id, decision) => {
+        let confirm = decision === "unmark" ?
+            window.confirm("Are you sure want to mark this task as not completed?") :
+            window.confirm("Are you sure want to mark this task as complete?");
+        if(!confirm) {
+            return;
         }
+
+        dispatch(updateTask(id, { completed: decision === "unmark" ?  false : true }));
         dispatch(getUserTasks(userId));
     }
 
@@ -143,11 +148,6 @@ const TaskList = () => {
     }
 
     const usersWithoutManagers = users.filter(u => u.manager == null && !(["admin", "manager"].includes(u.role)));
-
-    let toogle = false;
-    if(role === 'admin') {
-        toogle = !manageUsers
-    }
     
     return (
         <div className="tasks-list">
@@ -165,81 +165,12 @@ const TaskList = () => {
                     <button className="cancel" onClick={logout}>Logout</button>
                 </div>
             </div>
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <form className="task-popup">
-                            <h2>Create Task</h2>
 
-                            <input
-                                type="text"
-                                name="title"
-                                value={newTask.title}
-                                onChange={handleInputChange}
-                                placeholder="Title"
-                                required
-                            />
-
-                            <input
-                                type="text"
-                                name="description"
-                                placeholder="Description"
-                                value={newTask.description}
-                                onChange={handleInputChange}
-                                required
-                            />
-
-                            <select
-                                name="priority"
-                                value={newTask.priority}
-                                onChange={handleInputChange}
-                            >
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
-
-                            <select
-                                name="assignedTo"
-                                value={newTask.assignedTo}
-                                onChange={handleInputChange}
-                            >   
-                                {
-                                    assignees.map(a => <option value={a._id} key={a._id}>{a.username}</option>)
-                                }
-                            </select>
-                            
-
-                            <input
-                                type="date"
-                                name="deadline"
-                                value={newTask.deadline}
-                                onChange={handleInputChange}
-                                required
-                            />
-
-                            {editTask && 
-                            <div style={{display: "flex", alignItems: 'center', gap: '10px', padding: '4px'}}>
-                                <input
-                                    type="checkbox"
-                                    name="completed"
-                                    checked={newTask.completed}
-                                    onChange={handleInputChange}
-                                />
-                                Mark as completed
-                            </div>
-                            }   
-                            <div className="modal-actions">
-                                <button className="cancel" onClick={() => onCancelTask()}>Cancel</button>
-                                <button className="submit" onClick={e => handleSubmit(e)}>Submit</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            { showModal && (
+                <TaskForm newTask={newTask} handleInputChange={handleInputChange} assignees={assignees} editTask={editTask} onCancelTask={onCancelTask} handleSubmit={handleSubmit}/>
             )}
 
-            {
-                addUser &&
+            { addUser &&
                 <form className="task-popup">
                     <h3>Please select user</h3>
                     <select onChange={e => setSelectedUser(e.target.value)}>
@@ -248,28 +179,21 @@ const TaskList = () => {
                         }
                     </select>
                     <div className="modal-actions">
-                        <button className="submit" onClick={e => addUserToManager(e)}>Add</button>
                         <button className="cancel" onClick={() => { setAddUser(false); setSelectedManager("")}}>Cancel</button>
+                        <button className="submit" onClick={e => addUserToManager(e)}>Add</button>
                     </div>
                 </form>
             }
-            {manageUsers && role == "admin" ?
+            { manageUsers && role == "admin" ?
                 <div className={`managers-list ${addUser ? 'blur-background' : ''}`}>
                     {managers.map(m => <ManagerCard key={Math.random()} manager={m} onAddUserToManager={onAddUserToManager} />)}
+                </div> :
+                <div className={`tasks-list-container ${showModal ? 'blur-background' : ''}   `}>
+                    {tasks.map((task) => (
+                        <TaskItem key={Math.random()} task={task} onEditTask={onEditTask} onDeleteTask={onDeleteTask} onCompleteTask={onCompleteTask} username={getUsername(task.assignedTo)} />
+                    ))}
                 </div>
-            :
-            <div className={`tasks-list-container ${showModal ? 'blur-background' : ''}   `}>
-                {tasks.map((task) => (
-                    <TaskItem 
-                        key={task._id} 
-                        task={task} 
-                        onEditTask={onEditTask}
-                        onDeleteTask={onDeleteTask}
-                        onCompleteTask={onCompleteTask}
-                        username={getUsername(task.assignedTo)}
-                    />
-                ))}
-            </div>}
+            }
         </div>
     );
 };

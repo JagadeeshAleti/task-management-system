@@ -19,9 +19,16 @@ const TaskItem = ({ task, username, onEditTask, onDeleteTask, onCompleteTask}) =
                 </span>
             </div>
             <div className="edit-actions">
-                <img src="https://cdn-icons-png.flaticon.com/512/16208/16208195.png"
-                    onClick={() => onCompleteTask(task._id)} 
-                />
+                {!task?.completed ? 
+                    <img 
+                        src="https://cdn-icons-png.flaticon.com/512/16208/16208195.png"
+                        onClick={() => onCompleteTask(task._id, "mark as completed")} 
+                    /> :
+                    <img 
+                        src="https://cdn-icons-png.flaticon.com/512/169/169779.png"
+                        onClick={() => onCompleteTask(task._id, "unmark")} 
+                    />
+                }
                 <img                    
                     src="https://cdn-icons-png.flaticon.com/512/5253/5253658.png"
                     onClick={() => onEditTask(task._id)}
